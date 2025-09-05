@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社區藥房及藥物知識問答遊戲</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #87CEEB, #0046AD);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            animation: fadeInDown 1s ease;
+        }
+        
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            color: #FFCC00;
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            background: rgba(0, 70, 173, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .game-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            padding: 25px;
+            animation: fadeInUp 1s ease;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid #FFCC00;
+        }
+        
+        .progress-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px 0;
+            border-bottom: 2px solid #f1f1f1;
+        }
+        
+        .progress-bar {
+            flex-grow: 1;
+            height: 15px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin: 0 15px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #3498db, #2ecc71);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .question-counter {
+            background: #0046AD;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-weight: bold;
+            min-width: 100px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .question-container {
+            margin: 20px 0 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            position: relative;
+            border: 2px solid #0046AD;
+        }
+        
+        .question-container h2 {
+            font-size: 1.3rem;
+            color: #0046AD;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        
+        .question-type {
+            position: absolute;
+            top: -12px;
+            right: 15px;
+            background: #FFCC00;
+            color: #0046AD;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        
+        .option {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 12px 15px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .option:hover {
+            border-color: #3498db;
+        }
+        
+        .option.selected {
+            background: #e3f2fd;
+            border-color: #3498db;
+        }
+        
+        .option-letter {
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 25px;
+            font-weight: bold;
+            margin-right: 10px;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 15px;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            justify-content: center;
+        }
+        
+        .btn-prev {
+            background: #7f8c8d;
+            color: white;
+        }
+        
+        .btn-next {
+            background: #0046AD;
+            color: white;
+        }
+        
+        .btn-submit {
+            background: #FFCC00;
+            color: #0046AD;
+        }
+        
+        .btn-restart {
+            background: #0046AD;
+            color: #FFCC00;
+            margin: 20px auto;
+            padding: 12px 25px;
+            font-size: 1rem;
+        }
+        
+        .score-container {
+            text-align: center;
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #87CEEB, #0046AD);
+            border-radius: 15px;
+            color: white;
+            border: 3px solid #FFCC00;
+        }
+        
+        .score-container h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .score-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            border: 3px solid #FFCC00;
+        }
+        
+        .modal-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-message {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .correct-answer {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 1rem;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #f1f1f1;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            font-size: 0.9rem;
+            background: rgba(0, 70, 173, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .question-container h2 {
+                font-size: 1.1rem;
+            }
+            
+            .option {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-pills"></i> 社區藥物知識問答遊戲</h1>
+            <p>測試您對藥物存放、分類、藥房區別以及社區藥房服務的了解程度</p>
+        </header>
+        
+        <div class="game-card">
+            <div class="progress-container">
+                <div class="question-counter">問題 <span id="current-q">1</span>/<span id="total-q">10</span></div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress"></div>
+                </div>
+                <div class="score-display">分數: <span id="score">0</span></div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question-type" id="question-type">多選題</div>
+                <h2 id="question"></h2>
+                <div class="options-grid" id="options"></div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-prev" id="prevButton">
+                    <i class="fas fa-arrow-left"></i> 上一題
+                </button>
+                <button class="btn btn-submit" id="submit">
+                    <i class="fas fa-paper-plane"></i> 提交答案
+                </button>
+                <button class="btn btn-next" id="nextButton">
+                    下一題 <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="modal" id="resultModal">
+            <div class="modal-content" id="modalContent">
+                <div class="close-modal" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </div>
+                <div class="modal-icon" id="modalIcon"></div>
+                <div class="modal-message" id="modalMessage"></div>
+                <div class="correct-answer" id="correctAnswer"></div>
+                <button class="btn btn-next" id="modalNextButton">
+                    下一題 <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+        
+        <footer>
+            <p>本遊戲旨在提高市民對社區藥房服務的了解及藥物安全知識，不作為醫療建議</p>
+        </footer>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "下列哪項是正確家中存放藥物的方法？（請選擇兩個選項）",
+                options: [
+                    "A. 將不同藥物存放在同一個容器裏，以節省空間", 
+                    "B. 放置在陰涼乾爽處，避免陽光照射", 
+                    "C. 放置在高處，避免兒童誤服"
+                ],
+                answer: [1, 2],
+                type: "multiple"
+            },
+            {
+                question: "哪類藥物無需醫生處方，但需要在藥劑師的監督下售賣？（請選擇一個選項）",
+                options: [
+                    "A. 處方藥物", 
+                    "B. 監督售賣藥物", 
+                    "C. 非處方藥物"
+                ],
+                answer: [1],
+                type: "single"
+            },
+            {
+                question: "藥房和藥行的主要區別在於：（請選擇一個選項）",
+                options: [
+                    "A. 藥房須有藥劑師當值", 
+                    "B. 藥行可配售處方藥物", 
+                    "C. 藥行有 Rx 標誌"
+                ],
+                answer: [0],
+                type: "single"
+            },
+            {
+                question: "「Rx 標誌」只可出現在哪類商店？（請選擇一個選項）",
+                options: [
+                    "A. 藥行", 
+                    "B. 藥坊", 
+                    "C. 藥房"
+                ],
+                answer: [2],
+                type: "single"
+            },
+            {
+                question: "下列哪些屬於社區藥房常見服務？（請選擇兩個選項）",
+                options: [
+                    "A. 指導使用血壓計", 
+                    "B. 講解用藥須知", 
+                    "C. 外科手術"
+                ],
+                answer: [0, 1],
+                type: "multiple"
+            },
+            {
+                question: "藥劑師在社區藥房的主要職責包括？（請選擇兩個選項）",
+                options: [
+                    "A. 診症", 
+                    "B. 按醫生處方配售藥物", 
+                    "C. 小病小痛管理"
+                ],
+                answer: [1, 2],
+                type: "multiple"
+            },
+            {
+                question: "藥劑師在社區藥房會提供的服務有哪些？（請選擇兩個選項）",
+                options: [
+                    "A. 社區藥物管理服務", 
+                    "B. 藥物相互作用檢查", 
+                    "C. 外科縫合"
+                ],
+                answer: [0, 1],
+                type: "multiple"
+            },
+            {
+                question: "下列哪些是社區藥房常見的醫療器材？（請選擇兩個選項）",
+                options: [
+                    "A. 家用血糖機", 
+                    "B. 血壓計", 
+                    "C. 人工心肺機"
+                ],
+                answer: [0, 1],
+                type: "multiple"
+            },
+            {
+                question: "下列哪些屬於社區藥房的慢性疾病管理服務？（請選擇兩個選項）",
+                options: [
+                    "A. 評估藥物是否適合病人服用，並作出藥物建議", 
+                    "B. 指導正確使用家用血壓計/血糖機，以監察日常血壓或血糖水平",
+                    "C. 進行心臟手術"
+                ],
+                answer: [0, 1],
+                type: "multiple"
+            },
+            {
+                question: "藥劑師可以協助解決的藥物問題包括？（請選擇兩個選項）",
+                options: [
+                    "A. 忘記吃藥後續方法", 
+                    "B. 藥物會否引起嗜睡等不良反應", 
+                    "C. 沒有處方情況下配售處方藥物"
+                ],
+                answer: [0, 1],
+                type: "multiple"
+            }
+        ];
+        
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedAnswers = [];
+        let userAnswers = Array(questions.length).fill(null);
+        
+        // DOM元素
+        let questionEl, optionsEl, scoreEl, currentQEl, totalQEl, progressEl, questionTypeEl;
+        let prevButton, nextButton, submitButton;
+        let modal, modalIcon, modalMessage, correctAnswerEl, modalNextButton, closeModal;
+        
+        // 初始化
+        function initGame() {
+            // 獲取DOM元素
+            questionEl = document.getElementById('question');
+            optionsEl = document.getElementById('options');
+            scoreEl = document.getElementById('score');
+            currentQEl = document.getElementById('current-q');
+            totalQEl = document.getElementById('total-q');
+            progressEl = document.getElementById('progress');
+            questionTypeEl = document.getElementById('question-type');
+            prevButton = document.getElementById('prevButton');
+            nextButton = document.getElementById('nextButton');
+            submitButton = document.getElementById('submit');
+            modal = document.getElementById('resultModal');
+            modalIcon = document.getElementById('modalIcon');
+            modalMessage = document.getElementById('modalMessage');
+            correctAnswerEl = document.getElementById('correctAnswer');
+            modalNextButton = document.getElementById('modalNextButton');
+            closeModal = document.getElementById('closeModal');
+            
+            totalQEl.textContent = questions.length;
+            loadQuestion();
+            updateProgress();
+            
+            // 綁定事件監聽器
+            submitButton.addEventListener('click', submitAnswer);
+            prevButton.addEventListener('click', prevQuestion);
+            nextButton.addEventListener('click', nextQuestion);
+            modalNextButton.addEventListener('click', nextQuestion);
+            closeModal.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+        }
+        
+        // 加载问题
+        function loadQuestion() {
+            const q = questions[currentQuestion];
+            questionEl.textContent = q.question;
+            questionTypeEl.textContent = q.type === 'single' ? '單選題' : '多選題';
+            currentQEl.textContent = currentQuestion + 1;
+            
+            // 清空选项
+            optionsEl.innerHTML = '';
+            
+            // 添加选项
+            q.options.forEach((option, index) => {
+                const optionEl = document.createElement('div');
+                optionEl.className = 'option';
+                if (userAnswers[currentQuestion] && userAnswers[currentQuestion].includes(index)) {
+                    optionEl.classList.add('selected');
+                }
+                
+                optionEl.innerHTML = `
+                    <div class="option-letter">${option.charAt(0)}</div>
+                    <div class="option-text">${option.substring(3)}</div>
+                `;
+                
+                optionEl.addEventListener('click', () => selectAnswer(index, optionEl));
+                optionsEl.appendChild(optionEl);
+            });
+            
+            // 更新按钮状态
+            prevButton.disabled = currentQuestion === 0;
+            nextButton.disabled = currentQuestion === questions.length - 1;
+        }
+        
+        // 选择答案
+        function selectAnswer(index, element) {
+            const q = questions[currentQuestion];
+            
+            if (q.type === 'single') {
+                // 单选逻辑：移除其他选择，只保留当前选项
+                document.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                element.classList.add('selected');
+                selectedAnswers = [index];
+            } else {
+                // 多选逻辑：切换选择状态
+                element.classList.toggle('selected');
+                if (selectedAnswers.includes(index)) {
+                    selectedAnswers = selectedAnswers.filter(i => i !== index);
+                } else {
+                    selectedAnswers.push(index);
+                }
+            }
+            
+            // 保存用户答案
+            userAnswers[currentQuestion] = [...selectedAnswers];
+        }
+        
+        // 提交答案
+        function submitAnswer() {
+            if (selectedAnswers.length === 0) {
+                showModal('請選擇答案', '請至少選擇一個答案', '❌');
+                return;
+            }
+            
+            const q = questions[currentQuestion];
+            const correctAnswers = q.answer.sort().join(',');
+            const userAnswersSorted = [...selectedAnswers].sort().join(',');
+            
+            if (correctAnswers === userAnswersSorted) {
+                score++;
+                scoreEl.textContent = score;
+                showModal('回答正確！', '恭喜您回答正確！', '✅');
+            } else {
+                // 构建正确答案字符串
+                let correctOptions = q.answer.map(i => q.options[i]).join('<br>');
+                showModal('回答不正確', `正確答案是：<br>${correctOptions}`, '❌');
+            }
+        }
+        
+        //显示结果模态框
+    function showModal(title, message, icon) {
+        modalIcon.textContent = icon;
+        modalMessage.innerHTML = `<strong>${title}</strong><br>${message}`;
+        
+        // 檢查是否是最後一題
+        if (currentQuestion === questions.length - 1) {
+            // 最後一題：顯示關閉按鈕
+            modalNextButton.innerHTML = '<i class="fas fa-times"></i> 關閉';
+            modalNextButton.onclick = () => {
+                modal.style.display = 'none';
+                endGame(); // 直接結束遊戲
+            };
+        } else {
+            // 不是最後一題：顯示下一題按鈕
+            modalNextButton.innerHTML = '下一題 <i class="fas fa-arrow-right"></i>';
+            modalNextButton.onclick = nextQuestion;
+        }
+        
+        modal.style.display = 'flex';
+    }
+
+    // 下一题
+    function nextQuestion() {
+        if (currentQuestion < questions.length - 1) {
+            currentQuestion++;
+            selectedAnswers = userAnswers[currentQuestion] || [];
+            loadQuestion();
+            updateProgress();
+            modal.style.display = 'none';
+        } else {
+            // 這部分可以移除，因為現在由showModal處理最後一題的情況
+            // endGame();
+        }
+    }
+        
+        // 更新进度条
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            progressEl.style.width = `${progress}%`;
+        }
+        
+        // 结束游戏
+        function endGame() {
+            document.querySelector('.game-card').innerHTML = `
+                <div class="score-container">
+                    <h3>遊戲結束！</h3>
+                    <div class="score-value">${score}/${questions.length}</div>
+                    <p>${score >= questions.length * 0.8 ? '太棒了！您對社區藥房及藥物知識掌握得很好！' : 
+                       score >= questions.length * 0.6 ? '不錯的表現！再多學習一些社區藥房及藥物知識會更好！' : 
+                       '加油！社區藥房及藥物知識對日常生活很重要，請繼續學習！'}</p>
+                </div>
+                <button class="btn btn-restart" id="restartButton">
+                    <i class="fas fa-redo"></i> 再玩一次
+                </button>
+            `;
+            
+            document.getElementById('restartButton').addEventListener('click', restartGame);
+        }
+        
+        // 重新开始游戏
+    function restartGame() {
+        // 重置遊戲狀態
+        currentQuestion = 0;
+        score = 0;
+        selectedAnswers = [];
+        userAnswers = Array(questions.length).fill(null);
+        
+        // 重新渲染遊戲卡片
+        document.querySelector('.game-card').innerHTML = `
+            <div class="progress-container">
+                <div class="question-counter">問題 <span id="current-q">1</span>/<span id="total-q">10</span></div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress"></div>
+                </div>
+                <div class="score-display">分數: <span id="score">0</span></div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question-type" id="question-type">多選題</div>
+                <h2 id="question"></h2>
+                <div class="options-grid" id="options"></div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-prev" id="prevButton" style="display: none;">
+                    <i class="fas fa-arrow-left"></i> 上一題
+                </button>
+                <button class="btn btn-submit" id="submit">
+                    <i class="fas fa-paper-plane"></i> 提交答案
+                </button>
+            </div>
+        `;
+        
+        // 重新初始化遊戲
+        initGame();
+        
+        // 重新綁定事件監聽器
+        document.getElementById('submit').addEventListener('click', submitAnswer);
+        document.getElementById('prevButton').addEventListener('click', prevQuestion);
+    }
+        
+        // 初始化游戏
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
